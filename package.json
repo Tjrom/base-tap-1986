@@ -1,0 +1,41 @@
+{
+  "name": "base-tapper-retro",
+  "version": "1.0.0",
+  "description": "Retro 80s tap game mini-app for Base (Farcaster Mini Apps)",
+  "private": true,
+  "keywords": [
+    "base",
+    "miniapp",
+    "farcaster",
+    "retro",
+    "tapper",
+    "nextjs",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tjrom/base-tap-1986.git"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@farcaster/miniapp-sdk": "^0.1.0",
+    "next": "14.2.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.3",
+    "typescript": "^5.6.0"
+  }
+}
