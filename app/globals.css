@@ -183,6 +183,98 @@ body {
   font-size: 12px;
 }
 
+.music-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.music-toggle-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.music-tumbler {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(92, 255, 224, 0.6);
+  background: rgba(10, 0, 40, 0.6);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.music-tumbler:hover {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 12px rgba(92, 255, 224, 0.3);
+}
+
+.music-tumbler-track {
+  position: relative;
+  width: 44px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 92, 240, 0.5);
+  transition: background 0.2s;
+}
+
+.music-tumbler.on .music-tumbler-track {
+  background: linear-gradient(90deg, rgba(92, 255, 224, 0.4), rgba(255, 92, 240, 0.3));
+}
+
+.music-tumbler-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  box-shadow: 0 0 8px rgba(255, 92, 240, 0.6);
+  transition: transform 0.2s ease;
+}
+
+.music-tumbler.off .music-tumbler-thumb {
+  transform: translateX(0);
+}
+
+.music-tumbler.on .music-tumbler-thumb {
+  transform: translateX(22px);
+}
+
+.music-tumbler-text {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  min-width: 20px;
+  transition: opacity 0.2s;
+}
+
+.music-tumbler-text.on {
+  color: var(--accent-2);
+}
+
+.music-tumbler-text.off {
+  color: var(--text-muted);
+}
+
+.music-tumbler.off .music-tumbler-text.on {
+  opacity: 0.5;
+}
+
+.music-tumbler.on .music-tumbler-text.off {
+  opacity: 0.5;
+}
+
 .game-panel {
   position: relative;
   margin-top: 8px;
@@ -555,4 +647,3 @@ body {
   background: linear-gradient(90deg, rgba(92, 255, 224, 0.3), rgba(255, 92, 240, 0.3));
   box-shadow: 0 0 16px rgba(92, 255, 224, 0.4);
 }
-

@@ -57,6 +57,7 @@ export default function HomePage() {
   const [gmTxHash, setGmTxHash] = useState<string | null>(null);
   const [gmPending, setGmPending] = useState(false);
   const [gmError, setGmError] = useState<string | null>(null);
+  const [musicOn, setMusicOn] = useState(true);
 
   const themeIndex = Math.floor(score / TAPS_PER_THEME) % THEME_NAMES.length;
   const themeName = THEME_NAMES[themeIndex];
@@ -76,6 +77,7 @@ export default function HomePage() {
     if (typeof window === 'undefined') return;
     const storedNick = window.localStorage.getItem('retro_tapper_nick');
     const storedBest = window.localStorage.getItem('retro_tapper_best');
+    const storedMusic = window.localStorage.getItem('retro_tapper_music');
     if (storedNick) {
       setSavedNick(storedNick);
       setNickname(storedNick);
@@ -84,6 +86,7 @@ export default function HomePage() {
       const n = Number(storedBest);
       if (!Number.isNaN(n)) setBestScore(n);
     }
+    if (storedMusic !== null) setMusicOn(storedMusic === '1');
   }, []);
 
   useEffect(() => {
@@ -97,6 +100,11 @@ export default function HomePage() {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('retro_tapper_best', String(bestScore));
   }, [bestScore]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('retro_tapper_music', musicOn ? '1' : '0');
+  }, [musicOn]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -234,6 +242,7 @@ export default function HomePage() {
     : null;
 
   const playTapSound = () => {
+    if (!musicOn) return;
     if (audioRefs.current.length) {
       const idx = audioIndexRef.current++ % audioRefs.current.length;
       const audio = audioRefs.current[idx];
@@ -344,6 +353,23 @@ export default function HomePage() {
             <span>Taps</span>
             <strong>{tapsPerSession}</strong>
           </div>
+        </div>
+
+        <div className="music-toggle-row">
+          <span className="music-toggle-label">Music</span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={musicOn}
+            className={`music-tumbler ${musicOn ? 'on' : 'off'}`}
+            onClick={() => setMusicOn((v) => !v)}
+          >
+            <span className="music-tumbler-track">
+              <span className="music-tumbler-thumb" />
+            </span>
+            <span className="music-tumbler-text on">On</span>
+            <span className="music-tumbler-text off">Off</span>
+          </button>
         </div>
 
         <div className="game-panel">
@@ -493,4 +519,3 @@ export default function HomePage() {
     </main>
   );
 }
-
