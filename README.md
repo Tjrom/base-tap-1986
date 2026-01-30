@@ -31,7 +31,7 @@
 ### 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/Tjrom/base-tap-1986.git
+git clone https://github.com/your-username/base-tap-1986.git
 cd base-tap-1986
 ```
 
