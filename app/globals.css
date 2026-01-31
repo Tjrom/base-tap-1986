@@ -337,25 +337,27 @@ body {
 }
 
 .float-tap {
-  position: absolute;
-  font-size: 16px;
-  font-weight: 700;
+  position: fixed;
+  font-size: 22px;
+  font-weight: 800;
   color: #fff;
   text-shadow:
-    0 0 4px #ff5cf0,
-    0 0 4px #5cffe0;
+    0 0 6px var(--accent),
+    0 0 8px var(--accent-2),
+    0 2px 4px rgba(0, 0, 0, 0.8);
   pointer-events: none;
   animation: float-up 700ms ease-out forwards;
+  z-index: 50;
 }
 
 @keyframes float-up {
   0% {
     opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -40px) scale(1.05);
+    transform: translate(-50%, -90px) scale(1.15);
   }
 }
 
@@ -647,3 +649,4 @@ body {
   background: linear-gradient(90deg, rgba(92, 255, 224, 0.3), rgba(255, 92, 240, 0.3));
   box-shadow: 0 0 16px rgba(92, 255, 224, 0.4);
 }
+

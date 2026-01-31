@@ -49,6 +49,7 @@ export default function HomePage() {
   const audioRefs = useRef<HTMLAudioElement[]>([]);
   const audioIndexRef = useRef(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const bgMusicRef = useRef<{ ctx: AudioContext; gain: GainNode; oscs: OscillatorNode[] } | null>(null);
 
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [walletProvider, setWalletProvider] = useState<Window['ethereum'] | null>(null);
@@ -104,6 +105,15 @@ export default function HomePage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('retro_tapper_music', musicOn ? '1' : '0');
+  }, [musicOn]);
+
+  useEffect(() => {
+    if (musicOn) return;
+    if (bgMusicRef.current) {
+      bgMusicRef.current.oscs.forEach((o) => { try { o.stop(); } catch { /* ignore */ } });
+      bgMusicRef.current.ctx.close().catch(() => {});
+      bgMusicRef.current = null;
+    }
   }, [musicOn]);
 
   useEffect(() => {
@@ -273,10 +283,33 @@ export default function HomePage() {
     }
   };
 
+  const startBgMusic = () => {
+    if (bgMusicRef.current) return;
+    try {
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const gain = ctx.createGain();
+      gain.gain.value = 0.12;
+      gain.connect(ctx.destination);
+      const freqs = [130.81, 164.81, 196]; // C3, E3, G3
+      const oscs = freqs.map((freq) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        osc.start(0);
+        return osc;
+      });
+      bgMusicRef.current = { ctx, gain, oscs };
+    } catch {
+      // ignore
+    }
+  };
+
   const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
     setScore((s) => s + 1);
     setTapsPerSession((t) => t + 1);
     playTapSound();
+    if (musicOn) startBgMusic();
 
     const rect =
       (e.target as HTMLElement).getBoundingClientRect?.() ??
@@ -362,7 +395,11 @@ export default function HomePage() {
             role="switch"
             aria-checked={musicOn}
             className={`music-tumbler ${musicOn ? 'on' : 'off'}`}
-            onClick={() => setMusicOn((v) => !v)}
+            onClick={() => {
+              const next = !musicOn;
+              setMusicOn(next);
+              if (next) startBgMusic();
+            }}
           >
             <span className="music-tumbler-track">
               <span className="music-tumbler-thumb" />
@@ -392,6 +429,7 @@ export default function HomePage() {
                 left: f.x,
                 top: f.y
               }}
+              aria-hidden
             >
               +1
             </div>
@@ -519,3 +557,4 @@ export default function HomePage() {
     </main>
   );
 }
+
