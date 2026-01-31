@@ -362,6 +362,34 @@ export default function HomePage() {
 
   const displayNick = savedNick ?? 'anon';
 
+  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const shareText = `I scored ${score} taps in BASE TAP 1986 on Base! Can you beat it?`;
+
+  const handleShare = async () => {
+    if (typeof window === 'undefined') return;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'BASE TAP 1986',
+          text: shareText,
+          url: shareUrl
+        });
+      } else {
+        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+        alert('Link copied!');
+      }
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') {
+        try {
+          await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+          alert('Link copied!');
+        } catch {
+          // ignore
+        }
+      }
+    }
+  };
+
   const floatPortal =
     mounted &&
     typeof document !== 'undefined' &&
@@ -448,6 +476,12 @@ export default function HomePage() {
           </button>
 
           <div className="info-line">Tap the coin. Every tap has sound.</div>
+
+          <div className="share-row">
+            <button type="button" className="share-button" onClick={handleShare}>
+              Share score
+            </button>
+          </div>
 
           <div className="gm-section">
             <button

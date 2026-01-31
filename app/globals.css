@@ -457,6 +457,33 @@ body {
   text-align: center;
 }
 
+.share-row {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.share-button {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(92, 255, 224, 0.7);
+  background: linear-gradient(90deg, rgba(92, 255, 224, 0.2), rgba(255, 92, 240, 0.2));
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.1s;
+}
+
+.share-button:hover {
+  box-shadow: 0 0 16px rgba(92, 255, 224, 0.5);
+}
+
+.share-button:active {
+  transform: scale(0.98);
+}
+
 /* GM plaque & wallet */
 .gm-section {
   margin-top: 14px;
