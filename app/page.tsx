@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { sdk } from '@farcaster/miniapp-sdk';
 
 type Leader = {
@@ -311,15 +312,14 @@ export default function HomePage() {
     playTapSound();
     if (musicOn) startBgMusic();
 
-    const rect =
-      (e.target as HTMLElement).getBoundingClientRect?.() ??
-      ({ left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 } as DOMRect);
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect?.() ?? { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
     const id = tapIdRef.current++;
-    const x = centerX + (Math.random() - 0.5) * 40;
-    const y = centerY + (Math.random() - 0.5) * 40;
+    const x = centerX + (Math.random() - 0.5) * 30;
+    const y = centerY + 25 + (Math.random() - 0.5) * 20;
 
     setFloating((prev) => {
       const next = [...prev, { id, x, y }];
@@ -357,8 +357,28 @@ export default function HomePage() {
 
   const displayNick = savedNick ?? 'anon';
 
+  const floatPortal =
+    typeof document !== 'undefined' &&
+    document.body &&
+    createPortal(
+      <>
+        {floating.map((f) => (
+          <div
+            key={f.id}
+            className="float-tap"
+            style={{ left: f.x, top: f.y }}
+            aria-hidden
+          >
+            +1
+          </div>
+        ))}
+      </>,
+      document.body
+    );
+
   return (
-    <main style={{ position: 'relative', zIndex: 1, width: '100%' }}>
+    <>
+      <main style={{ position: 'relative', zIndex: 1, width: '100%' }}>
       <div className="game-card">
         <div className="game-header">
           <div>
@@ -420,20 +440,6 @@ export default function HomePage() {
               <div className="tap-button-label">TAP</div>
             </div>
           </button>
-
-          {floating.map((f) => (
-            <div
-              key={f.id}
-              className="float-tap"
-              style={{
-                left: f.x,
-                top: f.y
-              }}
-              aria-hidden
-            >
-              +1
-            </div>
-          ))}
 
           <div className="info-line">Tap the coin. Every tap has sound.</div>
 
@@ -555,6 +561,8 @@ export default function HomePage() {
         </div>
       </div>
     </main>
+    {floatPortal}
+    </>
   );
 }
 
