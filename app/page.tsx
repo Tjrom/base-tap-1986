@@ -12,6 +12,7 @@ const MAX_FLOATING = 12;
 const TAPS_PER_THEME = 10_000;
 const THEME_NAMES = ['Synthwave', 'Outrun', 'Neon Arcade', 'Vaporwave'];
 const GM_BOOST_EVERY = 7; // every 7 GMs in a row = +1 pt per tap
+const GM_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 1 GM per 24h
 
 const BASE_CHAIN_ID = '0x2105'; // 8453
 const BASE_CHAIN_PARAMS = {
@@ -73,6 +74,7 @@ export default function HomePage() {
   const [saveOnchainPending, setSaveOnchainPending] = useState(false);
   const [onchainBest, setOnchainBest] = useState<number | null>(null);
   const [onchainTxHash, setOnchainTxHash] = useState<string | null>(null);
+  const [lastGmAt, setLastGmAt] = useState<number | null>(null);
 
   const leaderboardContract = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT
     ? process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT
@@ -105,6 +107,7 @@ export default function HomePage() {
     const storedScore = window.localStorage.getItem('retro_tapper_score');
     const storedMusic = window.localStorage.getItem('retro_tapper_music');
     const storedGM = window.localStorage.getItem('retro_tapper_gm_streak');
+    const storedLastGm = window.localStorage.getItem('retro_tapper_last_gm');
     if (storedNick) {
       setSavedNick(storedNick);
       setNickname(storedNick);
@@ -121,6 +124,10 @@ export default function HomePage() {
     if (storedGM) {
       const n = Number(storedGM);
       if (!Number.isNaN(n) && n >= 0) setConsecutiveGMCount(n);
+    }
+    if (storedLastGm) {
+      const t = Number(storedLastGm);
+      if (!Number.isNaN(t) && t > 0) setLastGmAt(t);
     }
   }, []);
 
@@ -259,9 +266,18 @@ export default function HomePage() {
     }
   };
 
+  const now = typeof window !== 'undefined' ? Date.now() : 0;
+  const nextGmAt = lastGmAt ? lastGmAt + GM_COOLDOWN_MS : 0;
+  const canGm = !lastGmAt || now >= nextGmAt;
+  const gmCooldownRemainingMs = canGm ? 0 : nextGmAt - now;
+
   const sendGM = async () => {
     if (!walletAddress || !walletProvider?.request) {
       setShowWalletModal(true);
+      return;
+    }
+    if (!canGm) {
+      setGmError('GM once per 24h. Try again later.');
       return;
     }
     setGmError(null);
@@ -283,6 +299,9 @@ export default function HomePage() {
           gas: '0x5208'
         }]
       })) as string;
+      const ts = Date.now();
+      setLastGmAt(ts);
+      if (typeof window !== 'undefined') window.localStorage.setItem('retro_tapper_last_gm', String(ts));
       setGmTxHash(hash);
       setConsecutiveGMCount((c) => c + 1);
     } catch (e) {
@@ -290,6 +309,13 @@ export default function HomePage() {
     } finally {
       setGmPending(false);
     }
+  };
+
+  const formatCooldown = (ms: number) => {
+    const h = Math.floor(ms / (60 * 60 * 1000));
+    const m = Math.floor((ms % (60 * 60 * 1000)) / (60 * 1000));
+    if (h > 0) return `${h}h ${m}m`;
+    return `${m}m`;
   };
 
   const shortAddress = walletAddress
@@ -584,12 +610,12 @@ export default function HomePage() {
               type="button"
               className="gm-plaque"
               onClick={walletAddress ? sendGM : () => setShowWalletModal(true)}
-              disabled={gmPending}
+              disabled={gmPending || (!!walletAddress && !canGm)}
             >
               <span className="gm-plaque-label">GM</span>
               {walletAddress ? (
                 <span className="gm-plaque-hint">
-                  {gmPending ? 'Confirm in wallet…' : 'Send tx on Base'}
+                  {gmPending ? 'Confirm in wallet…' : !canGm ? `Next GM in ${formatCooldown(gmCooldownRemainingMs)}` : 'Once per 24h · Send tx on Base'}
                 </span>
               ) : (
                 <span className="gm-plaque-hint">Connect wallet</span>
