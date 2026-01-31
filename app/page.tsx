@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { sdk } from '@farcaster/miniapp-sdk';
 
 type Leader = {
   name: string;
@@ -70,14 +69,16 @@ export default function HomePage() {
   const themeName = THEME_NAMES[themeIndex];
 
   useEffect(() => {
-    async function ready() {
+    let cancelled = false;
+    (async () => {
       try {
-        await sdk.actions.ready();
-      } catch (e) {
-        // локально вне Base – можно игнорировать
+        const { sdk } = await import('@farcaster/miniapp-sdk');
+        if (!cancelled) await sdk.actions.ready();
+      } catch {
+        // вне Base или SDK недоступен – игра работает без него
       }
-    }
-    ready();
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
@@ -312,6 +313,7 @@ export default function HomePage() {
   };
 
   const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
     setScore((s) => s + 1);
     setTapsPerSession((t) => t + 1);
     playTapSound();

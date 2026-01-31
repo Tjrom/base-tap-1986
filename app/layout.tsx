@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   other: {
     'base:app_id': '697d94252aafa0bc9ad8a22c',
     'fc:miniapp': JSON.stringify({
-      version: 'next',
+      version: '1',
       imageUrl: `${APP_URL}/og-1200x630.png`,
       button: {
         title: 'Launch BASE TAP 1986',

@@ -2,7 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   async headers() {
+    const allowFrame = [
+      { key: 'Content-Security-Policy', value: "frame-ancestors *" },
+    ];
     return [
+      { source: '/:path*', headers: allowFrame },
       {
         source: '/icon.png',
         headers: [
