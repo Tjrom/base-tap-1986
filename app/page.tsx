@@ -102,6 +102,7 @@ export default function HomePage() {
     if (typeof window === 'undefined') return;
     const storedNick = window.localStorage.getItem('retro_tapper_nick');
     const storedBest = window.localStorage.getItem('retro_tapper_best');
+    const storedScore = window.localStorage.getItem('retro_tapper_score');
     const storedMusic = window.localStorage.getItem('retro_tapper_music');
     const storedGM = window.localStorage.getItem('retro_tapper_gm_streak');
     if (storedNick) {
@@ -111,6 +112,10 @@ export default function HomePage() {
     if (storedBest) {
       const n = Number(storedBest);
       if (!Number.isNaN(n)) setBestScore(n);
+    }
+    if (storedScore) {
+      const n = Number(storedScore);
+      if (!Number.isNaN(n) && n >= 0) setScore(n);
     }
     if (storedMusic !== null) setMusicOn(storedMusic === '1');
     if (storedGM) {
@@ -130,6 +135,11 @@ export default function HomePage() {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('retro_tapper_best', String(bestScore));
   }, [bestScore]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('retro_tapper_score', String(score));
+  }, [score]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -428,8 +438,7 @@ export default function HomePage() {
       setLeaderboard(data.leaderboard);
       setSavedNick(name);
       if (score > bestScore) setBestScore(score);
-      setScore(0);
-      setTapsPerSession(0);
+      // score is not reset – it keeps accumulating and is persisted in localStorage
     } catch {
       // ignore
     }
