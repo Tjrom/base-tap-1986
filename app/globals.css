@@ -476,6 +476,30 @@ body {
   text-align: center;
 }
 
+.boost-details {
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.boost-details-summary {
+  cursor: pointer;
+  list-style: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.boost-details-summary::-webkit-details-marker {
+  display: none;
+}
+
+.boost-details-text {
+  margin: 6px 0 0;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
 .share-row {
   margin-top: 10px;
   text-align: center;
@@ -531,14 +555,6 @@ body {
   padding-top: 12px;
   border-top: 1px solid rgba(92, 255, 224, 0.4);
   text-align: center;
-}
-
-.gm-boost-explainer {
-  font-size: 11px;
-  color: var(--text-muted);
-  max-width: 320px;
-  margin: 0 auto 8px;
-  line-height: 1.35;
 }
 
 .gm-streak-row {

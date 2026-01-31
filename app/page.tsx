@@ -11,7 +11,7 @@ type Leader = {
 const MAX_FLOATING = 12;
 const TAPS_PER_THEME = 10_000;
 const THEME_NAMES = ['Synthwave', 'Outrun', 'Neon Arcade', 'Vaporwave'];
-const GM_BOOST_EVERY = 7; // каждые 7 GM подряд = +1 очко за тап
+const GM_BOOST_EVERY = 7; // every 7 GMs in a row = +1 pt per tap
 
 const BASE_CHAIN_ID = '0x2105'; // 8453
 const BASE_CHAIN_PARAMS = {
@@ -92,7 +92,7 @@ export default function HomePage() {
         const { sdk } = await import('@farcaster/miniapp-sdk');
         if (!cancelled) await sdk.actions.ready();
       } catch {
-        // вне Base или SDK недоступен – игра работает без него
+        // outside Base or SDK unavailable – game works without it
       }
     })();
     return () => { cancelled = true; };
@@ -566,13 +566,10 @@ export default function HomePage() {
           </div>
 
           <div className="gm-section">
-            <div className="gm-boost-explainer">
-              <strong>GM boost:</strong> каждые 7 GM подряд = +1 очко за тап. 7 GM → 2 pts, 14 GM → 3 pts, и так далее.
-            </div>
             <div className="gm-streak-row">
-              <span className="gm-streak-label">GM подряд:</span>
+              <span className="gm-streak-label">GM streak</span>
               <span className="gm-streak-value">{consecutiveGMCount}</span>
-              <span className="gm-streak-pts">→ {pointsPerTap} очка за тап</span>
+              <span className="gm-streak-pts">→ {pointsPerTap} pts/tap</span>
             </div>
             <button
               type="button"
@@ -712,6 +709,10 @@ export default function HomePage() {
               </a>
             )}
             <div className="info-line">Score goes to leaderboard + local best. Save onchain = permanent on Base.</div>
+            <details className="boost-details">
+              <summary className="boost-details-summary">How boost works</summary>
+              <p className="boost-details-text">Every 7 GMs in a row = +1 pt per tap. 7 GM → 2 pts/tap, 14 GM → 3 pts/tap, and so on.</p>
+            </details>
           </div>
         </div>
       </div>
