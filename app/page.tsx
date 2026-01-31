@@ -11,6 +11,7 @@ type Leader = {
 const MAX_FLOATING = 12;
 const TAPS_PER_THEME = 10_000;
 const THEME_NAMES = ['Synthwave', 'Outrun', 'Neon Arcade', 'Vaporwave'];
+const GM_BOOST_EVERY = 7; // каждые 7 GM подряд = +1 очко за тап
 
 const BASE_CHAIN_ID = '0x2105'; // 8453
 const BASE_CHAIN_PARAMS = {
@@ -20,6 +21,14 @@ const BASE_CHAIN_PARAMS = {
   rpcUrls: ['https://mainnet.base.org'],
   blockExplorerUrls: ['https://basescan.org']
 };
+
+// Leaderboard.sol: submitScore(uint256) selector = first 4 bytes of keccak256("submitScore(uint256)")
+const SUBMIT_SCORE_SELECTOR = '0x0f2a8f8e';
+
+function encodeSubmitScore(score: number): string {
+  const hex = BigInt(score).toString(16).padStart(64, '0');
+  return SUBMIT_SCORE_SELECTOR + hex;
+}
 
 type WalletOption = { id: string; name: string; provider: unknown };
 
@@ -43,7 +52,7 @@ export default function HomePage() {
   const [savedNick, setSavedNick] = useState<string | null>(null);
   const [leaderboard, setLeaderboard] = useState<Leader[]>([]);
   const [floating, setFloating] = useState<
-    { id: number; x: number; y: number }[]
+    { id: number; x: number; y: number; pts: number }[]
   >([]);
   const tapIdRef = useRef(0);
   const audioRefs = useRef<HTMLAudioElement[]>([]);
@@ -58,8 +67,16 @@ export default function HomePage() {
   const [gmTxHash, setGmTxHash] = useState<string | null>(null);
   const [gmPending, setGmPending] = useState(false);
   const [gmError, setGmError] = useState<string | null>(null);
+  const [consecutiveGMCount, setConsecutiveGMCount] = useState(0);
   const [musicOn, setMusicOn] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [saveOnchainPending, setSaveOnchainPending] = useState(false);
+  const [onchainBest, setOnchainBest] = useState<number | null>(null);
+  const [onchainTxHash, setOnchainTxHash] = useState<string | null>(null);
+
+  const leaderboardContract = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT
+    ? process.env.NEXT_PUBLIC_LEADERBOARD_CONTRACT
+    : '';
 
   useEffect(() => {
     setMounted(true);
@@ -86,6 +103,7 @@ export default function HomePage() {
     const storedNick = window.localStorage.getItem('retro_tapper_nick');
     const storedBest = window.localStorage.getItem('retro_tapper_best');
     const storedMusic = window.localStorage.getItem('retro_tapper_music');
+    const storedGM = window.localStorage.getItem('retro_tapper_gm_streak');
     if (storedNick) {
       setSavedNick(storedNick);
       setNickname(storedNick);
@@ -95,6 +113,10 @@ export default function HomePage() {
       if (!Number.isNaN(n)) setBestScore(n);
     }
     if (storedMusic !== null) setMusicOn(storedMusic === '1');
+    if (storedGM) {
+      const n = Number(storedGM);
+      if (!Number.isNaN(n) && n >= 0) setConsecutiveGMCount(n);
+    }
   }, []);
 
   useEffect(() => {
@@ -113,6 +135,11 @@ export default function HomePage() {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem('retro_tapper_music', musicOn ? '1' : '0');
   }, [musicOn]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem('retro_tapper_gm_streak', String(consecutiveGMCount));
+  }, [consecutiveGMCount]);
 
   useEffect(() => {
     if (musicOn) return;
@@ -247,6 +274,7 @@ export default function HomePage() {
         }]
       })) as string;
       setGmTxHash(hash);
+      setConsecutiveGMCount((c) => c + 1);
     } catch (e) {
       setGmError(e instanceof Error ? e.message : 'Transaction failed');
     } finally {
@@ -257,6 +285,49 @@ export default function HomePage() {
   const shortAddress = walletAddress
     ? `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`
     : null;
+
+  const saveScoreOnchain = async () => {
+    if (!leaderboardContract || !walletAddress || !walletProvider?.request || score <= 0) return;
+    const onBase = await switchToBase();
+    if (!onBase) return;
+    setSaveOnchainPending(true);
+    setOnchainTxHash(null);
+    try {
+      const data = encodeSubmitScore(score);
+      const hash = (await walletProvider.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          from: walletAddress,
+          to: leaderboardContract,
+          value: '0x0',
+          data,
+          gas: '0x2ee0'
+        }]
+      })) as string;
+      setOnchainTxHash(hash);
+      setOnchainBest((prev) => (score > (prev ?? 0) ? score : prev));
+    } catch {
+      // ignore
+    } finally {
+      setSaveOnchainPending(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!leaderboardContract || !walletAddress) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/onchain-best?address=${encodeURIComponent(walletAddress)}`, { cache: 'no-store' });
+        if (!res.ok || cancelled) return;
+        const data = (await res.json()) as { best?: number };
+        if (data.best != null) setOnchainBest(data.best);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [leaderboardContract, walletAddress]);
 
   const playTapSound = () => {
     if (!musicOn) return;
@@ -312,9 +383,11 @@ export default function HomePage() {
     }
   };
 
+  const pointsPerTap = 1 + Math.floor(consecutiveGMCount / GM_BOOST_EVERY);
+
   const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
-    setScore((s) => s + 1);
+    setScore((s) => s + pointsPerTap);
     setTapsPerSession((t) => t + 1);
     playTapSound();
     if (musicOn) startBgMusic();
@@ -329,7 +402,7 @@ export default function HomePage() {
     const y = centerY + 25 + (Math.random() - 0.5) * 20;
 
     setFloating((prev) => {
-      const next = [...prev, { id, x, y }];
+      const next = [...prev, { id, x, y, pts: pointsPerTap }];
       if (next.length > MAX_FLOATING) {
         next.shift();
       }
@@ -405,7 +478,7 @@ export default function HomePage() {
             style={{ left: f.x, top: f.y }}
             aria-hidden
           >
-            +1
+            +{f.pts ?? 1}
           </div>
         ))}
       </>,
@@ -479,6 +552,13 @@ export default function HomePage() {
 
           <div className="info-line">Tap the coin. Every tap has sound.</div>
 
+          {pointsPerTap > 1 && (
+            <div className="boost-badge" role="status">
+              <span className="boost-badge-value">{pointsPerTap} pts/tap</span>
+              <span className="boost-badge-hint">({consecutiveGMCount} GM streak)</span>
+            </div>
+          )}
+
           <div className="share-row">
             <button type="button" className="share-button" onClick={handleShare}>
               Share score
@@ -486,6 +566,14 @@ export default function HomePage() {
           </div>
 
           <div className="gm-section">
+            <div className="gm-boost-explainer">
+              <strong>GM boost:</strong> каждые 7 GM подряд = +1 очко за тап. 7 GM → 2 pts, 14 GM → 3 pts, и так далее.
+            </div>
+            <div className="gm-streak-row">
+              <span className="gm-streak-label">GM подряд:</span>
+              <span className="gm-streak-value">{consecutiveGMCount}</span>
+              <span className="gm-streak-pts">→ {pointsPerTap} очка за тап</span>
+            </div>
             <button
               type="button"
               className="gm-plaque"
@@ -598,7 +686,32 @@ export default function HomePage() {
                 Save
               </button>
             </div>
-            <div className="info-line">Score goes to leaderboard + local best.</div>
+            {leaderboardContract && walletAddress && (
+              <div className="onchain-row">
+                <span className="onchain-best">
+                  {onchainBest != null ? `Onchain best: ${onchainBest}` : 'Onchain best: –'}
+                </span>
+                <button
+                  type="button"
+                  className="nick-button onchain-button"
+                  onClick={saveScoreOnchain}
+                  disabled={saveOnchainPending || score <= 0}
+                >
+                  {saveOnchainPending ? 'Saving…' : 'Save onchain'}
+                </button>
+              </div>
+            )}
+            {onchainTxHash && (
+              <a
+                href={`https://basescan.org/tx/${onchainTxHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="gm-tx-link"
+              >
+                View onchain tx
+              </a>
+            )}
+            <div className="info-line">Score goes to leaderboard + local best. Save onchain = permanent on Base.</div>
           </div>
         </div>
       </div>

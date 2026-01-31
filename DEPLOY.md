@@ -43,7 +43,13 @@ accountAssociation: {
 
 Create a **post in the Base app** with your app URL: `https://basetap-1986.vercel.app`. That publishes the mini app.
 
-## 6. Optional – assets for featured
+## 6. Optional – onchain leaderboard (Base)
+
+1. Deploy **contracts/Leaderboard.sol** to Base Mainnet (e.g. via [Remix](https://remix.ethereum.org)); see **contracts/README.md**.
+2. In Vercel add env: `NEXT_PUBLIC_LEADERBOARD_CONTRACT` = deployed contract address.
+3. Users can then use **Save onchain** to store their best score on Base.
+
+## 7. Optional – assets for featured
 
 Add images to **public/** as in [public/ASSETS.md](public/ASSETS.md) (icon 1024×1024, cover 1200×630, 3 screenshots 1284×2778). Required for featured placement, not for basic publish.
 

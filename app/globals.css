@@ -444,6 +444,25 @@ body {
   font-weight: 700;
   font-size: 11px;
   text-transform: uppercase;
+}
+
+.onchain-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.onchain-best {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.nick-button.onchain-button {
+  background: linear-gradient(135deg, var(--accent-2), #5cffe0);
+  color: #0a1a18;
+  cursor: pointer;
   letter-spacing: 0.1em;
   cursor: pointer;
 }
@@ -485,11 +504,64 @@ body {
 }
 
 /* GM plaque & wallet */
+.boost-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 6px 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(92, 255, 224, 0.2);
+  border: 1px solid var(--accent-2);
+  font-size: 12px;
+}
+
+.boost-badge-value {
+  font-weight: 700;
+  color: var(--accent-2);
+}
+
+.boost-badge-hint {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
 .gm-section {
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px solid rgba(92, 255, 224, 0.4);
   text-align: center;
+}
+
+.gm-boost-explainer {
+  font-size: 11px;
+  color: var(--text-muted);
+  max-width: 320px;
+  margin: 0 auto 8px;
+  line-height: 1.35;
+}
+
+.gm-streak-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.gm-streak-label {
+  color: var(--text-muted);
+}
+
+.gm-streak-value {
+  font-weight: 700;
+  color: var(--accent-2);
+  min-width: 24px;
+}
+
+.gm-streak-pts {
+  color: var(--accent-3);
 }
 
 .gm-plaque {
