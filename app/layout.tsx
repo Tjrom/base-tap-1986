@@ -32,6 +32,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="base:app_id" content="697d94252aafa0bc9ad8a22c" />
+      </head>
       <body>
         <div className="app-root">
           <div className="retro-horizon" />
