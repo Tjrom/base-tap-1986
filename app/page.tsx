@@ -60,6 +60,11 @@ export default function HomePage() {
   const [gmPending, setGmPending] = useState(false);
   const [gmError, setGmError] = useState<string | null>(null);
   const [musicOn, setMusicOn] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const themeIndex = Math.floor(score / TAPS_PER_THEME) % THEME_NAMES.length;
   const themeName = THEME_NAMES[themeIndex];
@@ -358,6 +363,7 @@ export default function HomePage() {
   const displayNick = savedNick ?? 'anon';
 
   const floatPortal =
+    mounted &&
     typeof document !== 'undefined' &&
     document.body &&
     createPortal(
