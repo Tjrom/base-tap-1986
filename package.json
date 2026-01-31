@@ -28,7 +28,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "flatten-icon": "node scripts/flatten-icon.mjs"
+    "flatten-icon": "node scripts/flatten-icon.mjs",
+    "generate-icon-png": "node scripts/generate-icon-png.mjs"
   },
   "dependencies": {
     "@farcaster/miniapp-sdk": "^0.1.0",
