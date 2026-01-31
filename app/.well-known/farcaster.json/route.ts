@@ -1,5 +1,8 @@
 const URL = process.env.NEXT_PUBLIC_URL as string | undefined;
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   const baseUrl = URL || 'https://basetap-1986.vercel.app';
 
@@ -34,6 +37,11 @@ export async function GET() {
     }
   };
 
-  return Response.json(manifest);
+  return new Response(JSON.stringify(manifest), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store, no-cache, max-age=0'
+    }
+  });
 }
 
