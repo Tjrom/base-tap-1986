@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 
-const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://your-vercel-url.vercel.app';
+const APP_URL = process.env.NEXT_PUBLIC_URL || 'https://basetap-1986.vercel.app';
 
 export const metadata: Metadata = {
   title: 'BASE TAP 1986',
@@ -10,14 +10,14 @@ export const metadata: Metadata = {
     'base:app_id': '697d94252aafa0bc9ad8a22c',
     'fc:miniapp': JSON.stringify({
       version: 'next',
-      imageUrl: `${APP_URL}/embed-image.png`,
+      imageUrl: `${APP_URL}/og-1200x630.png`,
       button: {
         title: 'Launch BASE TAP 1986',
         action: {
           type: 'launch_miniapp',
           name: 'BASE TAP 1986',
           url: APP_URL,
-          splashImageUrl: `${APP_URL}/splash-image.png`,
+          splashImageUrl: `${APP_URL}/og-1200x630.png`,
           splashBackgroundColor: '#000000'
         }
       }
