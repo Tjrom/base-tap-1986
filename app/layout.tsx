@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'BASE TAP 1986',
   description: 'Retro 80s tap game mini-app on Base',
   other: {
+    'base:app_id': '697d94252aafa0bc9ad8a22c',
     'fc:miniapp': JSON.stringify({
       version: 'next',
       imageUrl: `${APP_URL}/embed-image.png`,
