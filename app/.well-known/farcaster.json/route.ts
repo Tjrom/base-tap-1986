@@ -16,7 +16,7 @@ export async function GET() {
       version: '1',
       name: 'BASE TAP 1986',
       homeUrl: baseUrl,
-      iconUrl: `${baseUrl}/icon-1024.png`,
+      iconUrl: `${baseUrl}/api/icon`,
       splashImageUrl: `${baseUrl}/og-1200x630.png`,
       splashBackgroundColor: '#000000',
       webhookUrl: `${baseUrl}/api/webhook`,
